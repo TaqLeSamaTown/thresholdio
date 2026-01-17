@@ -18,8 +18,8 @@ const friction = 0.9;
 const TICK_RATE = 1000 / 60;
 
 const players = {};
-
 io.on("connection", socket => {
+	const defaultUsername = "Player_" + Math.floor(Math.random() * 1000);
     players[socket.id] = {
         x: zoneWidth / 2,
         y: zoneHeight / 2,
@@ -28,7 +28,8 @@ io.on("connection", socket => {
         vx: 0,
         vy: 0,
         hp: 100,
-        input: { x: 0, y: 0 }
+        input: { x: 0, y: 0 },
+		username: defaultUsername
     };
 
     socket.emit("state", players);

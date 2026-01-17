@@ -15,6 +15,21 @@ const renderDistance = 1600;
 const input = { x: 0, y: 0 };
 const camera = { x: 0, y: 0 };
 
+let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+const speed = 0.2;
+
+canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+});
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+
 socket.on("connect", () => {
     myId = socket.id;
 });
@@ -25,20 +40,28 @@ socket.on("state", serverPlayers => {
     }
 });
 
-window.addEventListener("keydown", e => {
-    if (e.key === "a") input.x = -1;
-    if (e.key === "d") input.x = 1;
-    if (e.key === "w") input.y = 1;
-    if (e.key === "s") input.y = -1;
-});
+function getDirection(player) {
+    const camX = player.x - canvas.width / 2 + player.w / 2;
+    const camY = player.y - canvas.height / 2 + player.h / 2;
 
-window.addEventListener("keyup", e => {
-    if (["a", "d"].includes(e.key)) input.x = 0;
-    if (["w", "s"].includes(e.key)) input.y = 0;
-});
+    const mouseWorldX = mouse.x + camX;
+    const mouseWorldY = (canvas.height - mouse.y) + camY; // Y flipped
+
+    const dx = mouseWorldX - (player.x + player.w / 2);
+    const dy = mouseWorldY - (player.y + player.h / 2);
+
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist === 0) return { x: 0, y: 0 };
+
+    return { x: dx / dist, y: dy / dist };
+}
 
 setInterval(() => {
-    socket.emit("move", input);
+	const me = players[myId];
+    if (!me) return;
+
+    const dir = getDirection(me);
+    socket.emit("move", { x: dir.x * speed, y: dir.y * speed });
 }, 1000 / 60);
 
 function getDist(a, b) {
@@ -50,7 +73,8 @@ function getDist(a, b) {
 function updateCamera(player) {
     const targetX = player.x + player.w / 2 - canvas.width / 2;
     const targetY = player.y + player.h / 2 - canvas.height / 2;
-
+	
+	
     camera.x += (targetX - camera.x) * 0.1;
     camera.y += (targetY - camera.y) * 0.1;
 
@@ -103,11 +127,28 @@ function draw() {
 
     ctx.restore();
 
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+
+    for (let id in players) {
+        const p = players[id];
+        if (getDist(me, p) > renderDistance) continue;
+        if (!p.username) continue;
+
+        const screenX = p.x - camera.x + p.w / 2;
+        const screenY = canvas.height - (p.y - camera.y) - p.h - 6;
+
+        ctx.fillText(p.username, screenX, screenY);
+    }
+
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
+    ctx.textAlign = "left";
     ctx.fillText(`HP: ${Math.round(me.hp)}`, 20, 30);
 
     requestAnimationFrame(draw);
 }
+
 
 requestAnimationFrame(draw);
