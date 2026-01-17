@@ -19,7 +19,7 @@ let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 let speed = 0.2;
 
 let energy = 0;
-let maxEnergy = 100;
+let maxEnergy = 16000;
 
 let dtimer = 0;
 
@@ -133,7 +133,7 @@ function draw() {
 		speed = 0.2;
 	}	
 	
-	energy = Math.min(maxEnergy, energy+0.1);
+	energy = Math.min(maxEnergy, energy+16);
 	
     drawBackground();
 
