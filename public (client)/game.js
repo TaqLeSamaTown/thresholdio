@@ -28,11 +28,14 @@ canvas.addEventListener("mousemove", (e) => {
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
 });
-canvas.addEventListener("click", (e) => {
-	if (energy >= 16){
-	energy -= 16;
-	dtimer = 20;
-	}
+
+window.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+        if (energy >= 16) {
+            energy -= 16;
+            dtimer = 20;
+        }
+    }
 });
 
 window.addEventListener("resize", () => {
@@ -100,7 +103,7 @@ function drawBackground() {
 
     for (let x = startX; x < camera.x + canvas.width; x += stripeSize) {
         for (let y = startY; y < camera.y + canvas.height; y += stripeSize) {
-            ctx.fillStyle = ((x + y) / stripeSize) % 2 === 0 ? "#3F3" : "#2A2";
+            ctx.fillStyle = ((x + y) / stripeSize) % 2 === 0 ? "#3C3" : "#2A2";
             ctx.fillRect(x - camera.x, y - camera.y, stripeSize, stripeSize);
         }
     }

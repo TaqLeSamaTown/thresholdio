@@ -45,10 +45,17 @@ io.on("connection", socket => {
     });
 });
 
+function rectColl(a,b){
+	return (a.x < b.x + b.w &&
+			a.x + a.w > b.x &&
+			a.y < b.y + b.h &&
+			a.y + a.h > b.y);
+}
+
 setInterval(() => {
     for (const id in players) {
         const p = players[id];
-        const speed = 1.5;
+        let speed = 1.5;
 
         p.vx += p.input.x * speed;
         p.vy += p.input.y * speed;
@@ -61,14 +68,20 @@ setInterval(() => {
 
         p.x = Math.max(0, Math.min(p.x, zoneWidth - p.w));
         p.y = Math.max(0, Math.min(p.y, zoneHeight - p.h));
-
+		
+		for (const p2 in players){
+			if (rectColl(p2,p)) {
+				p.hp -= 0.1;
+				speed = -speed;
+			}
+		}
+		
         if (p.y < 500) {
             p.hp = Math.min(100, p.hp + 0.05);
         }
-    }
-
+	}
     io.emit("state", players);
-}, TICK_RATE);
+	}, TICK_RATE);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
