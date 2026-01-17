@@ -9,11 +9,47 @@
     height: 100%;
     display: block;
 	}
+	#chat {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 260px;
+    height: 300px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    z-index: 10;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#chatMessages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 14px;
+}
+
+#chatInput {
+    border: none;
+    outline: none;
+    padding: 8px;
+    background: rgba(0,0,0,0.9);
+    color: white;
+    font-size: 14px;
+}
+
 	</style>
 	</head>
 	<body style="background-color:blue">
 		<canvas id="gameCanvas" width="1280" height="720"></canvas>
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="game.js"></script>
-	</body>
+		<div id="chat">
+		<div id="chatMessages"></div>
+			<input id="chatInput" type="text" autocomplete="off"/>
+		</div>
+
+		</body>
 </html>

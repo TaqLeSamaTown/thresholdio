@@ -5,6 +5,43 @@ const socket = io();
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const chat = document.getElementById("chat");
+const chatInput = document.getElementById("chatInput");
+const chatMessages = document.getElementById("chatMessages");
+
+let chatOpen = false;
+
+chatInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        e.stopPropagation();
+
+        if (chatInput.value.trim() !== "") {
+            socket.emit("chat", chatInput.value);
+            chatInput.value = "";
+        }
+        closeChat();
+    }
+});
+
+window.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !chatOpen) {
+        chatOpen = true;
+        chat.style.display = "flex";
+        chatInput.focus();
+        e.preventDefault();
+    } 
+    else if (e.key === "Escape" && chatOpen) {
+        closeChat();
+    }
+});
+
+function closeChat() {
+    chatOpen = false;
+    chat.style.display = "none";
+    chatInput.blur();
+}
+
+
 const players = {};
 let myId = null;
 
@@ -19,7 +56,7 @@ let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 let speed = 0.2;
 
 let energy = 0;
-let maxEnergy = 16000;
+let maxEnergy = 100;
 
 let dtimer = 0;
 
@@ -71,6 +108,8 @@ function getDirection(player) {
 }
 
 setInterval(() => {
+	if (chatOpen) return;
+	
 	const me = players[myId];
     if (!me) return;
 
@@ -116,6 +155,7 @@ function draw() {
         return;
     }
     updateCamera(me);
+	if (me.hp <= 0) return;
 	
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -128,12 +168,11 @@ function draw() {
 	
     if (dtimer > 0) {
 		speed = 1.5;
-		dtimer -= 1;
 	} else {
 		speed = 0.2;
 	}	
 	
-	energy = Math.min(maxEnergy, energy+16);
+	energy = Math.min(maxEnergy, energy+0.6);
 	
     drawBackground();
 

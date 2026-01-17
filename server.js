@@ -43,6 +43,21 @@ io.on("connection", socket => {
     socket.on("disconnect", () => {
         delete players[socket.id];
     });
+	
+	socket.on("chat", msg => {
+    io.emit("chat", {
+        username: players[socket.id].username,
+        message: msg
+    });
+	});
+	
+	socket.on("chat", data => {
+    const div = document.createElement("div");
+    div.textContent = `${data.username}: ${data.message}`;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+	});
+
 });
 
 function rectColl(a,b){
@@ -69,7 +84,8 @@ setInterval(() => {
         p.x = Math.max(0, Math.min(p.x, zoneWidth - p.w));
         p.y = Math.max(0, Math.min(p.y, zoneHeight - p.h));
 		
-		for (const p2 in players){
+		for (const id2 in players){
+			const p2 = players[id2];
 			if (rectColl(p2,p)) {
 				p.hp -= 0.1;
 				speed = -speed;
