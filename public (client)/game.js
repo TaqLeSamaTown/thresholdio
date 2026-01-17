@@ -129,7 +129,6 @@ function draw() {
 	} else {
 		speed = 0.2;
 	}	
-	}
 	
 	energy = Math.min(maxEnergy, energy+0.1);
 	
