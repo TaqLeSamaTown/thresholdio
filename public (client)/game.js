@@ -19,7 +19,7 @@ const camera = { x: 0, y: 0 };
 let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 let speed = 0.2;
 let energy = 0;
-let maxEnergy = 16000;
+let maxEnergy = 100;
 let dtimer = 0;
 let chatOpen = false;
 
@@ -136,10 +136,23 @@ function draw() {
         ctx.fillStyle = id===myId?"blue":"red";
         ctx.fillRect(p.x-camera.x,p.y-camera.y,p.w,p.h);
     }
+	
+	dtimer = Math.max(0,dtimer-1);
+	me.hp = Math.min(me.hp+0.01,100);
+	energy = Math.min(energy+0.1,maxEnergy);
+	if (dtimer > 0) {
+		speed = 1.5;
+	}else{
+		speed=0.2;
+	}
     ctx.restore();
+	ctx.font="16px Arial";
+    ctx.fillStyle="white";
+	ctx.fillText(`HP: ${String(Math.round(me.hp))}`,30,30);
+	ctx.fillText(`Energy: ${String(Math.round(energy))}`,30,60);
     ctx.font="16px Arial";
     ctx.fillStyle="white";
-    ctx.textAlign="center";
+    ctx.textAlign="center"; 
     for(let id in players){
         const p=players[id];
         if(getDist(me,p)>renderDistance) continue;
