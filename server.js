@@ -18,8 +18,9 @@ const friction = 0.9;
 const TICK_RATE = 1000 / 60;
 
 const players = {};
+
 io.on("connection", socket => {
-	const defaultUsername = "Player_" + Math.floor(Math.random() * 1000);
+    const defaultUsername = "Player_" + Math.floor(Math.random() * 1000);
     players[socket.id] = {
         x: zoneWidth / 2,
         y: zoneHeight / 2,
@@ -29,7 +30,7 @@ io.on("connection", socket => {
         vy: 0,
         hp: 100,
         input: { x: 0, y: 0 },
-		username: defaultUsername
+        username: defaultUsername
     };
 
     socket.emit("state", players);
@@ -40,31 +41,26 @@ io.on("connection", socket => {
         }
     });
 
+    socket.on("chat", msg => {
+        if (!players[socket.id]) return;
+        io.emit("chat", {
+            username: players[socket.id].username,
+            message: msg
+        });
+    });
+
     socket.on("disconnect", () => {
         delete players[socket.id];
     });
-	
-	socket.on("chat", msg => {
-    io.emit("chat", {
-        username: players[socket.id].username,
-        message: msg
-    });
-	});
-	
-	socket.on("chat", data => {
-    const div = document.createElement("div");
-    div.textContent = `${data.username}: ${data.message}`;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-	});
-
 });
 
-function rectColl(a,b){
-	return (a.x < b.x + b.w &&
-			a.x + a.w > b.x &&
-			a.y < b.y + b.h &&
-			a.y + a.h > b.y);
+function rectColl(a, b) {
+    return (
+        a.x < b.x + b.w &&
+        a.x + a.w > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y
+    );
 }
 
 setInterval(() => {
@@ -83,21 +79,22 @@ setInterval(() => {
 
         p.x = Math.max(0, Math.min(p.x, zoneWidth - p.w));
         p.y = Math.max(0, Math.min(p.y, zoneHeight - p.h));
-		
-		for (const id2 in players){
-			const p2 = players[id2];
-			if (rectColl(p2,p)) {
-				p.hp -= 0.1;
-				speed = -speed;
-			}
-		}
-		
+
+        for (const id2 in players) {
+            if (id === id2) continue;
+            const p2 = players[id2];
+            if (rectColl(p2, p)) {
+                p.hp -= 0.1;
+            }
+        }
+
         if (p.y < 500) {
             p.hp = Math.min(100, p.hp + 0.05);
         }
-	}
+    }
+
     io.emit("state", players);
-	}, TICK_RATE);
+}, TICK_RATE);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
