@@ -16,12 +16,23 @@ const input = { x: 0, y: 0 };
 const camera = { x: 0, y: 0 };
 
 let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
-const speed = 0.2;
+let speed = 0.2;
+
+let energy = 0;
+let maxEnergy = 100;
+
+let dtimer = 0;
 
 canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
+});
+canvas.addEventListener("click", (e) => {
+	if (energy >= 16){
+	energy -= 16;
+	dtimer = 20;
+	}
 });
 
 window.addEventListener("resize", () => {
@@ -45,7 +56,7 @@ function getDirection(player) {
     const camY = player.y - canvas.height / 2 + player.h / 2;
 
     const mouseWorldX = mouse.x + camX;
-    const mouseWorldY = (canvas.height - mouse.y) + camY; // Y flipped
+    const mouseWorldY = (canvas.height - mouse.y) + camY;
 
     const dx = mouseWorldX - (player.x + player.w / 2);
     const dy = mouseWorldY - (player.y + player.h / 2);
@@ -101,15 +112,27 @@ function draw() {
         requestAnimationFrame(draw);
         return;
     }
-
     updateCamera(me);
-
+	
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
     ctx.translate(0, canvas.height);
     ctx.scale(1, -1);
-
+	
+	dtimer = Math.max(0,dtimer-1);
+	
+	
+    if (dtimer > 0) {
+		speed = 1.5;
+		dtimer -= 1;
+	} else {
+		speed = 0.2;
+	}	
+	}
+	
+	energy = Math.min(maxEnergy, energy+0.1);
+	
     drawBackground();
 
     for (let id in players) {
@@ -146,6 +169,10 @@ function draw() {
     ctx.font = "20px Arial";
     ctx.textAlign = "left";
     ctx.fillText(`HP: ${Math.round(me.hp)}`, 20, 30);
+	ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(`Energy: ${Math.round(energy)}`, 20, 60);
 
     requestAnimationFrame(draw);
 }
