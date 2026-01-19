@@ -23,6 +23,12 @@ let maxEnergy = 100;
 let dtimer = 0;
 let chatOpen = false;
 
+canvas.addEventListener("click", e => {
+	    if (energy >= 16) {
+        energy -= 16;
+        dtimer = 20;
+		}
+});
 canvas.addEventListener("mousemove", e => {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
@@ -31,10 +37,6 @@ canvas.addEventListener("mousemove", e => {
 
 window.addEventListener("keydown", e => {
     if (e.key === "Escape" && chatOpen) closeChat();
-    if (e.code === "Space" && energy >= 16) {
-        energy -= 16;
-        dtimer = 20;
-    }
     if (e.key === "Enter" && !chatOpen) {
         chatOpen = true;
         chat.style.display = "flex";
@@ -62,6 +64,14 @@ function closeChat() {
     chatOpen = false;
     chat.style.display = "none";
     chatInput.blur();
+}
+
+function chatButtonPress() {
+	if (!chatOpen) {
+	chatOpen = true;
+    chat.style.display = "flex";
+    chatInput.focus();
+	}
 }
 socket.on("connect", () => { myId = socket.id; });
 socket.on("state", serverPlayers => { Object.assign(players, serverPlayers); });
@@ -95,8 +105,6 @@ function updateCamera(player) {
     const targetY = player.y + player.h/2 - canvas.height/2;
     camera.x += (targetX - camera.x) * 0.1;
     camera.y += (targetY - camera.y) * 0.1;
-    camera.x = Math.max(0, Math.min(camera.x, zoneWidth - canvas.width));
-    camera.y = Math.max(0, Math.min(camera.y, zoneHeight - canvas.height));
 }
 
 function drawBackground() {
@@ -148,8 +156,8 @@ function draw() {
     ctx.restore();
 	ctx.font="16px Arial";
     ctx.fillStyle="white";
-	ctx.fillText(`HP: ${String(Math.round(me.hp))}`,30,30);
-	ctx.fillText(`Energy: ${String(Math.round(energy))}`,30,60);
+	ctx.fillText(`HP: ${String(Math.round(me.hp))}`,40,30);
+	ctx.fillText(`Energy: ${String(Math.round(energy))}`,50,60);
     ctx.font="16px Arial";
     ctx.fillStyle="white";
     ctx.textAlign="center"; 
