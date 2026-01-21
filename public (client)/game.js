@@ -16,6 +16,9 @@ const zoneHeight = 4500;
 const renderDistance = 1600;
 const input = { x: 0, y: 0 };
 const camera = { x: 0, y: 0 };
+
+const zMMsword = new Image();
+zMMsword.src = "assets/weapons/zMMsword.png";
 let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 let speed = 0.2;
 let energy = 0;
@@ -124,6 +127,14 @@ setInterval(() => {
     if (!me) return;
     const dir = getDirection(me);
     socket.emit("move", { x: dir.x * speed, y: dir.y * speed });
+	dtimer = Math.max(0,dtimer-1);
+	me.hp = Math.min(me.hp+0.01,100);
+	energy = Math.min(energy+0.1,maxEnergy);
+	if (dtimer > 0) {
+		speed = 1.5;
+	}else{
+		speed=0.2;
+	}
 }, 1000 / 60);
 
 function draw() {
@@ -143,16 +154,17 @@ function draw() {
         if(getDist(me,p)>renderDistance) continue;
         ctx.fillStyle = id===myId?"blue":"red";
         ctx.fillRect(p.x-camera.x,p.y-camera.y,p.w,p.h);
-    }
-	
-	dtimer = Math.max(0,dtimer-1);
-	me.hp = Math.min(me.hp+0.01,100);
-	energy = Math.min(energy+0.1,maxEnergy);
-	if (dtimer > 0) {
-		speed = 1.5;
-	}else{
-		speed=0.2;
+		const angle = Math.atan2(mouse.y - canvas.height / 2,mouse.x - canvas.width / 2);
+		ctx.save();
+		ctx.translate(p.x - camera.x + p.w / 2,p.y - camera.y + p.h / 2);
+		ctx.rotate(angle+270);
+		ctx.drawImage(zMMsword, 12, -20, 32, 32);
+		
+
 	}
+	ctx.restore();
+	
+
     ctx.restore();
 	ctx.font="16px Arial";
     ctx.fillStyle="white";

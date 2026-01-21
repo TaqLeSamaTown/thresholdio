@@ -20,7 +20,7 @@ const TICK_RATE = 1000 / 60;
 const players = {};
 
 io.on("connection", socket => {
-    const defaultUsername = "Player_" + Math.floor(Math.random() * 1000);
+    const defaultUsername = "Sama no. " + Math.floor(Math.random() * 100);
     players[socket.id] = {
         x: zoneWidth / 2,
         y: zoneHeight / 2,
@@ -84,7 +84,8 @@ setInterval(() => {
             if (id === id2) continue;
             const p2 = players[id2];
             if (rectColl(p2, p)) {
-                p.hp -= 0.1;
+                p.vx = -5;
+				p.vy = -5;
             }
         }
 
